@@ -1,0 +1,11 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"landingPage": "/",
+	"login": true,
+	"preferredVersions": { "php": "8.2", "wp": "latest" },
+	"steps": [
+		{ "step": "setSiteOptions", "options": { "blogname": "Canizales Consultores", "blogdescription": "Insolvencia y reorganización empresarial", "WPLANG": "es_CO" } },
+		{ "step": "activateTheme", "themeFolderName": "canizales" },
+		{ "step": "runPHP", "code": "<?php require '/wordpress/wp-load.php'; canizales_run_seed( true, true );" }
+	]
+}

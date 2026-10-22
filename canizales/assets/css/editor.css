@@ -1,0 +1,74 @@
+/* Vista del editor de bloques, alineada con el sitio público. */
+
+body {
+	background: #f6f3eb;
+	color: #17211d;
+	font-family: "Garet", "Manrope", system-ui, sans-serif;
+	font-size: 1.0625rem;
+	line-height: 1.7;
+}
+
+h1, h2, h3, h4,
+.editor-post-title__input {
+	font-family: "Fraunces", Georgia, serif;
+	font-weight: 450;
+	line-height: 1.12;
+	color: #1a3029;
+}
+
+h2 { font-size: 2.3rem; }
+h3 { font-size: 1.45rem; }
+
+a { color: #5c6b1d; }
+
+.is-style-antetitulo {
+	font-size: .75rem;
+	font-weight: 800;
+	letter-spacing: .24em;
+	text-transform: uppercase;
+	color: #5c6b1d;
+}
+
+.is-style-destacado {
+	font-family: "Fraunces", Georgia, serif;
+	font-size: 1.55rem;
+	font-weight: 350;
+	line-height: 1.45;
+	color: #1a3029;
+}
+
+.is-style-numerada {
+	counter-reset: num;
+	padding: 0;
+	list-style: none;
+	border-bottom: 1px solid rgba(23, 33, 29, .14);
+}
+.is-style-numerada > li {
+	counter-increment: num;
+	position: relative;
+	padding: 16px 0 16px 56px;
+	border-top: 1px solid rgba(23, 33, 29, .14);
+}
+.is-style-numerada > li::before {
+	content: counter(num, decimal-leading-zero);
+	position: absolute;
+	left: 0;
+	font-family: "Fraunces", Georgia, serif;
+	font-style: italic;
+	color: #5c6b1d;
+}
+
+.is-style-panel {
+	padding: 28px;
+	background: #efebe1;
+	border: 1px solid rgba(23, 33, 29, .14);
+}
+
+.is-style-panel-bosque {
+	padding: 40px;
+	background: #1a3029;
+	color: #f6f3eb;
+}
+.is-style-panel-bosque .is-style-antetitulo { color: #b7a17a; }
+.is-style-panel-bosque .is-style-destacado,
+.is-style-panel-bosque p { color: #f6f3eb; }

@@ -1,0 +1,40 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/theme.json",
+	"version": 2,
+	"settings": {
+		"appearanceTools": false,
+		"color": {
+			"defaultPalette": false,
+			"defaultGradients": false,
+			"custom": false,
+			"palette": [
+				{ "slug": "bosque", "name": "Verde bosque", "color": "#1A3029" },
+				{ "slug": "oliva", "name": "Verde oliva", "color": "#8AA12B" },
+				{ "slug": "marfil", "name": "Marfil", "color": "#F6F3EB" },
+				{ "slug": "bronce", "name": "Bronce suave", "color": "#B7A17A" },
+				{ "slug": "piedra", "name": "Piedra", "color": "#D9D4C6" },
+				{ "slug": "carbon", "name": "Carbón", "color": "#17211D" }
+			]
+		},
+		"typography": {
+			"customFontSize": false,
+			"fontFamilies": [
+				{ "slug": "fraunces", "name": "Fraunces (titulares)", "fontFamily": "\"Fraunces\", Georgia, serif" },
+				{ "slug": "garet", "name": "Garet (textos)", "fontFamily": "\"Garet\", \"Manrope\", system-ui, sans-serif" }
+			],
+			"fontSizes": [
+				{ "slug": "small", "name": "Pequeño", "size": "0.88rem" },
+				{ "slug": "medium", "name": "Normal", "size": "1.0625rem" },
+				{ "slug": "large", "name": "Grande", "size": "1.4rem" },
+				{ "slug": "x-large", "name": "Muy grande", "size": "2rem" }
+			]
+		},
+		"layout": {
+			"contentSize": "800px",
+			"wideSize": "1100px"
+		},
+		"spacing": {
+			"units": [ "px", "rem", "%" ]
+		}
+	}
+}

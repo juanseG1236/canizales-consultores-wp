@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 150" role="img" aria-label="Canizales Consultores">
+  <defs>
+    <radialGradient id="g" cx="50%" cy="45%" r="60%">
+      <stop offset="0" stop-color="#F6F3EB"/>
+      <stop offset="1" stop-color="#D9D4C6"/>
+    </radialGradient>
+    <clipPath id="c"><ellipse cx="50" cy="75" rx="44" ry="70"/></clipPath>
+  </defs>
+  <ellipse cx="50" cy="75" rx="46" ry="72" fill="#F6F3EB" stroke="#B7A17A" stroke-width="1.5"/>
+  <ellipse cx="50" cy="75" rx="42" ry="68" fill="url(#g)" stroke="#1A3029" stroke-width="1.2"/>
+  <g clip-path="url(#c)" fill="#6E7F24">
+    <path d="M50 13l9 13H41z"/>
+    <rect x="49" y="9" width="2" height="5"/>
+    <path d="M42 27h16v12H42z"/>
+    <path d="M36 40h28a4 4 0 0 1 0 8H36a4 4 0 0 1 0-8z"/>
+    <path d="M40 50h20l11 92H29z"/>
+  </g>
+  <g fill="#EDEBE0">
+    <rect x="45" y="29" width="2.4" height="8" rx="1"/>
+    <rect x="52.6" y="29" width="2.4" height="8" rx="1"/>
+    <ellipse cx="50" cy="64" rx="4.2" ry="6"/>
+    <path d="M46.5 80h7l7.5 62h-22z"/>
+    <path d="M41.2 52.5l-1 .2-9.6 89.3h1.2z" opacity=".9"/>
+    <path d="M58.8 52.5l1 .2 9.6 89.3h-1.2z" opacity=".9"/>
+  </g>
+</svg>
