@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" preserveAspectRatio="xMinYMin slice">
+  <defs>
+    <radialGradient id="r" cx="0" cy="0" r="1400" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#B7A17A" stop-opacity=".6"/>
+      <stop offset=".55" stop-color="#B7A17A" stop-opacity=".14"/>
+      <stop offset="1" stop-color="#B7A17A" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <g stroke="url(#r)" stroke-width="1">
+    <line x1="0" y1="0" x2="2000" y2="0" transform="rotate(4)"/>
+    <line x1="0" y1="0" x2="2000" y2="0" transform="rotate(10)"/>
+    <line x1="0" y1="0" x2="2000" y2="0" transform="rotate(16)"/>
+    <line x1="0" y1="0" x2="2000" y2="0" transform="rotate(22)"/>
+    <line x1="0" y1="0" x2="2000" y2="0" transform="rotate(28)"/>
+    <line x1="0" y1="0" x2="2000" y2="0" transform="rotate(34)"/>
+    <line x1="0" y1="0" x2="2000" y2="0" transform="rotate(40)"/>
+    <line x1="0" y1="0" x2="2000" y2="0" transform="rotate(46)"/>
+    <line x1="0" y1="0" x2="2000" y2="0" transform="rotate(52)"/>
+    <line x1="0" y1="0" x2="2000" y2="0" transform="rotate(58)"/>
+    <line x1="0" y1="0" x2="2000" y2="0" transform="rotate(64)"/>
+    <line x1="0" y1="0" x2="2000" y2="0" transform="rotate(70)"/>
+    <line x1="0" y1="0" x2="2000" y2="0" transform="rotate(76)"/>
+    <line x1="0" y1="0" x2="2000" y2="0" transform="rotate(82)"/>
+    <line x1="0" y1="0" x2="2000" y2="0" transform="rotate(88)"/>
+  </g>
+  <circle cx="0" cy="0" r="90" fill="url(#r)" opacity=".5"/>
+</svg>

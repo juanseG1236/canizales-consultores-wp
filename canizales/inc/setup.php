@@ -1,6 +1,6 @@
 <?php
 /**
- * Configuración base del tema.
+ * Configuración base del tema de bloques.
  *
  * @package Canizales
  */
@@ -10,33 +10,12 @@ defined( 'ABSPATH' ) || exit;
 function canizales_setup() {
 	load_theme_textdomain( 'canizales', CANIZALES_DIR . '/languages' );
 
-	add_theme_support( 'title-tag' );
 	add_theme_support( 'post-thumbnails' );
 	add_theme_support( 'responsive-embeds' );
-	add_theme_support( 'align-wide' );
 	add_theme_support( 'editor-styles' );
-	add_theme_support( 'html5', array( 'search-form', 'gallery', 'caption', 'style', 'script', 'navigation-widgets' ) );
-	add_theme_support(
-		'custom-logo',
-		array(
-			'height'      => 240,
-			'width'       => 220,
-			'flex-height' => true,
-			'flex-width'  => true,
-		)
-	);
-
-	add_editor_style( 'assets/css/editor.css' );
+	add_editor_style( 'assets/css/main.css' );
 
 	add_image_size( 'canizales-card', 720, 480, true );
-	add_image_size( 'canizales-hero', 1920, 1080, true );
-
-	register_nav_menus(
-		array(
-			'principal' => __( 'Menú principal', 'canizales' ),
-			'pie'       => __( 'Menú del pie de página', 'canizales' ),
-		)
-	);
 
 	add_post_type_support( 'page', 'excerpt' );
 }
@@ -48,67 +27,61 @@ function canizales_assets() {
 
 	wp_enqueue_style( 'canizales', CANIZALES_URI . '/assets/css/main.css', array(), CANIZALES_VERSION . '.' . filemtime( $css ) );
 	wp_enqueue_script( 'canizales', CANIZALES_URI . '/assets/js/main.js', array(), CANIZALES_VERSION . '.' . filemtime( $js ), array( 'strategy' => 'defer', 'in_footer' => true ) );
-
-	wp_dequeue_style( 'classic-theme-styles' );
 }
 add_action( 'wp_enqueue_scripts', 'canizales_assets' );
 
-function canizales_js_class() {
+function canizales_head() {
 	echo "<script>document.documentElement.classList.add('js');</script>\n";
-}
-add_action( 'wp_head', 'canizales_js_class', 0 );
-
-function canizales_preload_fonts() {
-	$fonts = array( 'fraunces.woff2', 'garet-book.woff2' );
-	foreach ( $fonts as $font ) {
-		if ( file_exists( CANIZALES_DIR . '/assets/fonts/' . $font ) ) {
-			printf( '<link rel="preload" href="%s" as="font" type="font/woff2" crossorigin>' . "\n", esc_url( CANIZALES_URI . '/assets/fonts/' . $font ) );
-		}
+	if ( ! has_site_icon() ) {
+		printf( '<link rel="icon" href="%s" type="image/png">' . "\n", esc_url( CANIZALES_URI . '/assets/img/favicon.png' ) );
 	}
+	echo '<meta name="theme-color" content="#1A3029">' . "\n";
 }
-add_action( 'wp_head', 'canizales_preload_fonts', 1 );
+add_action( 'wp_head', 'canizales_head', 0 );
 
 /**
- * Las @font-face se imprimen desde PHP para que las rutas funcionen
- * en cualquier instalación y para declarar Garet solo si sus archivos existen.
+ * Garet tiene licencia comercial: sus archivos no se incluyen en el tema.
+ * Si se copian en assets/fonts/ (garet-book.woff2 y garet-heavy.woff2),
+ * se registran automáticamente como parte de la familia "Garet (textos)".
  */
-function canizales_font_faces() {
-	$base  = CANIZALES_URI . '/assets/fonts/';
-	$faces = array(
-		array( 'Fraunces', 'fraunces.woff2', '300 700', 'normal' ),
-		array( 'Fraunces', 'fraunces-italic.woff2', '300 700', 'italic' ),
-		array( 'Manrope', 'manrope.woff2', '300 800', 'normal' ),
-		array( 'Garet', 'garet-book.woff2', '400', 'normal' ),
-		array( 'Garet', 'garet-heavy.woff2', '800', 'normal' ),
+function canizales_garet_font( $theme_json ) {
+	$files = array(
+		'garet-book.woff2'  => '400',
+		'garet-heavy.woff2' => '800',
 	);
-
-	$css = '';
-	foreach ( $faces as $face ) {
-		if ( ! file_exists( CANIZALES_DIR . '/assets/fonts/' . $face[1] ) ) {
-			continue;
+	$faces = array();
+	foreach ( $files as $file => $weight ) {
+		if ( file_exists( CANIZALES_DIR . '/assets/fonts/' . $file ) ) {
+			$faces[] = array(
+				'fontFamily'  => 'Garet',
+				'fontStyle'   => 'normal',
+				'fontWeight'  => $weight,
+				'fontDisplay' => 'swap',
+				'src'         => array( 'file:./assets/fonts/' . $file ),
+			);
 		}
-		$css .= sprintf(
-			"@font-face{font-family:'%s';src:url('%s') format('woff2');font-weight:%s;font-style:%s;font-display:swap;}",
-			$face[0],
-			esc_url( $base . $face[1] ),
-			$face[2],
-			$face[3]
-		);
 	}
-	return $css;
-}
+	if ( ! $faces ) {
+		return $theme_json;
+	}
 
-function canizales_print_font_faces() {
-	echo '<style id="canizales-fonts">' . canizales_font_faces() . "</style>\n"; // phpcs:ignore WordPress.Security.EscapeOutput
-}
-add_action( 'wp_head', 'canizales_print_font_faces', 2 );
-add_action( 'admin_head', 'canizales_print_font_faces' );
+	$data     = $theme_json->get_data();
+	$families = isset( $data['settings']['typography']['fontFamilies']['theme'] ) ? $data['settings']['typography']['fontFamilies']['theme'] : array();
+	foreach ( $families as &$family ) {
+		if ( 'garet' === $family['slug'] ) {
+			$family['fontFace'] = array_merge( $faces, isset( $family['fontFace'] ) ? $family['fontFace'] : array() );
+		}
+	}
+	unset( $family );
 
-function canizales_editor_fonts( $settings ) {
-	$settings['styles'][] = array( 'css' => canizales_font_faces() );
-	return $settings;
+	return $theme_json->update_with(
+		array(
+			'version'  => 3,
+			'settings' => array( 'typography' => array( 'fontFamilies' => $families ) ),
+		)
+	);
 }
-add_filter( 'block_editor_settings_all', 'canizales_editor_fonts' );
+add_filter( 'wp_theme_json_data_theme', 'canizales_garet_font' );
 
 function canizales_cleanup() {
 	remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
@@ -121,59 +94,72 @@ function canizales_cleanup() {
 }
 add_action( 'init', 'canizales_cleanup' );
 
-function canizales_favicon() {
-	if ( has_site_icon() ) {
-		return;
-	}
-	printf( '<link rel="icon" href="%s" type="image/png">' . "\n", esc_url( CANIZALES_URI . '/assets/img/favicon.png' ) );
-}
-add_action( 'wp_head', 'canizales_favicon' );
-
-function canizales_excerpt_length() {
-	return 26;
-}
-add_filter( 'excerpt_length', 'canizales_excerpt_length' );
-
 function canizales_excerpt_more() {
 	return '…';
 }
 add_filter( 'excerpt_more', 'canizales_excerpt_more' );
 
+/**
+ * Estilos de bloque: aparecen en el panel "Estilos" de cada bloque.
+ * Su apariencia está definida en assets/css/main.css.
+ */
 function canizales_block_styles() {
-	register_block_style(
-		'core/list',
-		array(
-			'name'  => 'numerada',
-			'label' => __( 'Numerada con líneas', 'canizales' ),
-		)
+	$styles = array(
+		'core/group'     => array(
+			'seccion'        => __( 'Sección', 'canizales' ),
+			'seccion-crema'  => __( 'Sección crema', 'canizales' ),
+			'seccion-bosque' => __( 'Sección verde bosque', 'canizales' ),
+			'seccion-rayos'  => __( 'Sección con rayos de luz', 'canizales' ),
+			'faro'           => __( 'Portada con foto', 'canizales' ),
+			'cabecera'       => __( 'Cabecera de página', 'canizales' ),
+			'panel'          => __( 'Tarjeta clara', 'canizales' ),
+			'panel-bosque'   => __( 'Tarjeta verde', 'canizales' ),
+			'tarjeta-linea'  => __( 'Tarjeta con borde (fondo oscuro)', 'canizales' ),
+			'ovalo'          => __( 'Con óvalo de fondo', 'canizales' ),
+			'cifras'         => __( 'Franja de cifras', 'canizales' ),
+		),
+		'core/columns'   => array(
+			'pasos' => __( 'Pasos numerados', 'canizales' ),
+		),
+		'core/list'      => array(
+			'numerada' => __( 'Numerada con líneas', 'canizales' ),
+		),
+		'core/paragraph' => array(
+			'antetitulo' => __( 'Antetítulo', 'canizales' ),
+			'destacado'  => __( 'Párrafo destacado', 'canizales' ),
+		),
+		'core/query'     => array(
+			'filas'    => __( 'Filas numeradas', 'canizales' ),
+			'tarjetas' => __( 'Tarjetas', 'canizales' ),
+		),
+		'core/button'    => array(
+			'bosque' => __( 'Verde bosque', 'canizales' ),
+			'claro'  => __( 'Marfil', 'canizales' ),
+			'flecha' => __( 'Enlace con flecha', 'canizales' ),
+		),
+		'core/image'     => array(
+			'ovalo' => __( 'Óvalo', 'canizales' ),
+		),
+		'core/embed'     => array(
+			'marco' => __( 'Con marco', 'canizales' ),
+		),
 	);
-	register_block_style(
-		'core/group',
-		array(
-			'name'  => 'panel',
-			'label' => __( 'Panel marfil', 'canizales' ),
-		)
-	);
-	register_block_style(
-		'core/group',
-		array(
-			'name'  => 'panel-bosque',
-			'label' => __( 'Panel verde bosque', 'canizales' ),
-		)
-	);
-	register_block_style(
-		'core/paragraph',
-		array(
-			'name'  => 'destacado',
-			'label' => __( 'Párrafo destacado', 'canizales' ),
-		)
-	);
-	register_block_style(
-		'core/paragraph',
-		array(
-			'name'  => 'antetitulo',
-			'label' => __( 'Antetítulo', 'canizales' ),
-		)
-	);
+
+	foreach ( $styles as $block => $list ) {
+		foreach ( $list as $name => $label ) {
+			register_block_style(
+				$block,
+				array(
+					'name'  => $name,
+					'label' => $label,
+				)
+			);
+		}
+	}
 }
 add_action( 'init', 'canizales_block_styles' );
+
+function canizales_pattern_categories() {
+	register_block_pattern_category( 'canizales', array( 'label' => __( 'Canizales Consultores', 'canizales' ) ) );
+}
+add_action( 'init', 'canizales_pattern_categories', 9 );

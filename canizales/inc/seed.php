@@ -17,9 +17,19 @@ function canizales_b_attrs( $attrs ) {
 	return $attrs ? ' ' . wp_json_encode( $attrs, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) : '';
 }
 
-function canizales_b_p( $html, $class = '' ) {
-	$attrs = $class ? array( 'className' => $class ) : array();
-	$cls   = $class ? ' class="' . esc_attr( $class ) . '"' : '';
+function canizales_b_pattern( $slug ) {
+	return '<!-- wp:pattern ' . wp_json_encode( array( 'slug' => $slug ) ) . " /-->\n\n";
+}
+
+function canizales_b_p( $html, $class = '', $extra = array() ) {
+	$attrs = $extra;
+	if ( $class ) {
+		$own = trim( preg_replace( '/\bhas-[a-z0-9-]+-font-size\b/', '', $class ) );
+		if ( $own ) {
+			$attrs = array( 'className' => $own ) + $attrs;
+		}
+	}
+	$cls = $class ? ' class="' . esc_attr( $class ) . '"' : '';
 	return "<!-- wp:paragraph" . canizales_b_attrs( $attrs ) . " -->\n<p{$cls}>{$html}</p>\n<!-- /wp:paragraph -->\n\n";
 }
 
@@ -52,9 +62,12 @@ function canizales_b_list( $items, $ordered = false, $class = '' ) {
 	return "<!-- wp:list" . canizales_b_attrs( $attrs ) . " -->\n<{$tag} class=\"{$cls}\">{$inner}</{$tag}>\n<!-- /wp:list -->\n\n";
 }
 
-function canizales_b_group( $inner, $class = '' ) {
-	$attrs = $class ? array( 'className' => $class ) : array();
-	$cls   = 'wp-block-group' . ( $class ? ' ' . $class : '' );
+function canizales_b_group( $inner, $class = '', $extra = array() ) {
+	$attrs = $class ? array( 'className' => $class ) + $extra : $extra;
+	if ( isset( $extra['align'] ) ) {
+		$attrs = array( 'align' => $extra['align'] ) + $attrs;
+	}
+	$cls = 'wp-block-group' . ( isset( $extra['align'] ) ? ' align' . $extra['align'] : '' ) . ( $class ? ' ' . $class : '' );
 	return "<!-- wp:group" . canizales_b_attrs( $attrs ) . " -->\n<div class=\"{$cls}\">{$inner}</div>\n<!-- /wp:group -->\n\n";
 }
 
@@ -156,22 +169,45 @@ function canizales_seed_pages() {
 		true,
 		'is-style-numerada'
 	);
-	$insolvencia .= canizales_b_p( '<em>La información de esta página es de carácter general y no constituye asesoría jurídica para un caso particular. Cada situación requiere un análisis individual.</em>', 'has-small-font-size' );
+	$insolvencia .= canizales_b_p( '<em>La información de esta página es de carácter general y no constituye asesoría jurídica para un caso particular. Cada situación requiere un análisis individual.</em>', 'has-small-font-size', array( 'fontSize' => 'small' ) );
+
+	$inicio = '';
+	foreach ( array( 'portada', 'cifras', 'quienes-somos', 'servicios-filas', 'ley-1116', 'pasos', 'cita', 'ultimos-articulos', 'llamado' ) as $seccion ) {
+		$inicio .= canizales_b_pattern( 'canizales/' . $seccion );
+	}
+
+	$contacto = canizales_b_group(
+		canizales_b_group(
+			"<!-- wp:shortcode -->\n[canizales_migas]\n<!-- /wp:shortcode -->\n\n"
+			. canizales_b_h( 'Contacto', 1 )
+			. canizales_b_p( 'Cuéntenos su caso. Le orientaremos sobre las alternativas que contempla la ley para su empresa o para usted como persona natural.', 'cabecera__texto has-large-font-size', array( 'fontSize' => 'large' ) ),
+			'',
+			array(
+				'align'  => 'wide',
+				'layout' => array( 'type' => 'default' ),
+			)
+		),
+		'is-style-cabecera',
+		array(
+			'align'  => 'full',
+			'layout' => array( 'type' => 'constrained' ),
+		)
+	) . canizales_b_pattern( 'canizales/contacto' );
 
 	return array(
 		'inicio'                           => array(
 			'title'    => 'Inicio',
 			'legacy'   => array( 'inicio' ),
-			'template' => '',
+			'template' => 'pagina-en-blanco',
 			'excerpt'  => 'Asesoría jurídica y financiera en insolvencia y reorganización empresarial en Colombia desde 1999.',
-			'content'  => '',
+			'content'  => $inicio,
 		),
 		'la-firma'                         => array(
 			'title'    => 'La Firma',
 			'legacy'   => array( 'somos' ),
-			'template' => 'templates/template-firma.php',
+			'template' => '',
 			'excerpt'  => 'Desde 1999 acompañamos a empresas y personas naturales en escenarios de crisis financiera con un enfoque estratégico, técnico y humano.',
-			'content'  => $firma,
+			'content'  => $firma . canizales_b_pattern( 'canizales/fundador' ),
 		),
 		'insolvencia-y-reorganizacion'     => array(
 			'title'    => 'Insolvencia y reorganización',
@@ -183,9 +219,14 @@ function canizales_seed_pages() {
 		'servicios'                        => array(
 			'title'    => 'Servicios',
 			'legacy'   => array( 'portafolio' ),
-			'template' => 'templates/template-servicios.php',
+			'template' => '',
 			'excerpt'  => 'Un portafolio integral para empresas, personas naturales y organizaciones que enfrentan escenarios de crisis o buscan prevenirlos.',
-			'content'  => canizales_b_p( 'Transformamos la experiencia en soluciones efectivas. Nuestro portafolio integra servicios especializados para responder a las necesidades de empresas, personas naturales y organizaciones que enfrentan escenarios de crisis o buscan prevenirlos mediante una gestión responsable.', 'is-style-destacado' ),
+			'content'  => canizales_b_p( 'Transformamos la experiencia en soluciones efectivas. Nuestro portafolio integra servicios especializados para responder a las necesidades de empresas, personas naturales y organizaciones que enfrentan escenarios de crisis o buscan prevenirlos mediante una gestión responsable.', 'is-style-destacado' )
+				. canizales_b_group(
+					canizales_b_p( 'Experiencia como <strong>auxiliares de la justicia</strong>, promotores y liquidadores de la Superintendencia de Sociedades.' ),
+					'is-style-panel'
+				)
+				. canizales_b_pattern( 'canizales/servicios-tarjetas' ),
 		),
 		'recursos'                         => array(
 			'title'    => 'Recursos',
@@ -197,9 +238,9 @@ function canizales_seed_pages() {
 		'contacto'                         => array(
 			'title'    => 'Contacto',
 			'legacy'   => array( 'contacto' ),
-			'template' => 'templates/template-contacto.php',
+			'template' => 'pagina-en-blanco',
 			'excerpt'  => 'Cuéntenos su caso. Le orientaremos sobre las alternativas que contempla la ley para su empresa o para usted como persona natural.',
-			'content'  => '',
+			'content'  => $contacto,
 		),
 		'politica-de-tratamiento-de-datos' => array(
 			'title'    => 'Política de tratamiento de datos personales',
@@ -431,38 +472,6 @@ function canizales_run_seed( $replace = true, $permalinks = true ) {
 	}
 	$log[] = __( 'Portada y página de Recursos asignadas.', 'canizales' );
 
-	$menu_name = 'Principal';
-	$menu      = wp_get_nav_menu_object( $menu_name );
-	if ( ! $menu ) {
-		$menu_id = wp_create_nav_menu( $menu_name );
-		foreach ( array( 'la-firma', 'insolvencia-y-reorganizacion', 'servicios', 'recursos', 'contacto' ) as $position => $slug ) {
-			if ( empty( $ids[ $slug ] ) ) {
-				continue;
-			}
-			$labels = array(
-				'insolvencia-y-reorganizacion' => 'Insolvencia',
-			);
-			wp_update_nav_menu_item(
-				$menu_id,
-				0,
-				array(
-					'menu-item-object-id' => $ids[ $slug ],
-					'menu-item-object'    => 'page',
-					'menu-item-type'      => 'post_type',
-					'menu-item-status'    => 'publish',
-					'menu-item-position'  => $position + 1,
-					'menu-item-title'     => isset( $labels[ $slug ] ) ? $labels[ $slug ] : '',
-				)
-			);
-		}
-		$log[] = __( 'Menú principal creado.', 'canizales' );
-	} else {
-		$menu_id = $menu->term_id;
-	}
-	$locations              = get_theme_mod( 'nav_menu_locations', array() );
-	$locations['principal'] = $menu_id;
-	set_theme_mod( 'nav_menu_locations', $locations );
-
 	if ( $permalinks && '/%postname%/' !== get_option( 'permalink_structure' ) ) {
 		global $wp_rewrite;
 		$wp_rewrite->set_permalink_structure( '/%postname%/' );
@@ -470,6 +479,52 @@ function canizales_run_seed( $replace = true, $permalinks = true ) {
 	}
 	canizales_register_post_types();
 	flush_rewrite_rules();
+
+	$nav = get_posts(
+		array(
+			'post_type'      => 'wp_navigation',
+			'name'           => 'principal',
+			'posts_per_page' => 1,
+			'post_status'    => 'publish',
+		)
+	);
+	if ( ! $nav ) {
+		$labels = array(
+			'la-firma'                     => 'La Firma',
+			'insolvencia-y-reorganizacion' => 'Insolvencia',
+			'servicios'                    => 'Servicios',
+			'recursos'                     => 'Recursos',
+			'contacto'                     => 'Contacto',
+		);
+		$links  = '';
+		foreach ( $labels as $slug => $label ) {
+			if ( empty( $ids[ $slug ] ) ) {
+				continue;
+			}
+			$links .= '<!-- wp:navigation-link ' . wp_json_encode(
+				array(
+					'label' => $label,
+					'type'  => 'page',
+					'id'    => (int) $ids[ $slug ],
+					'url'   => get_permalink( $ids[ $slug ] ),
+					'kind'  => 'post-type',
+				),
+				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+			) . " /-->\n\n";
+		}
+		wp_insert_post(
+			wp_slash(
+				array(
+					'post_type'    => 'wp_navigation',
+					'post_status'  => 'publish',
+					'post_title'   => 'Principal',
+					'post_name'    => 'principal',
+					'post_content' => $links,
+				)
+			)
+		);
+		$log[] = __( 'Menú principal creado (Apariencia → Editor → Navegación).', 'canizales' );
+	}
 
 	update_option( 'canizales_seeded', CANIZALES_VERSION );
 
@@ -524,11 +579,25 @@ function canizales_setup_screen() {
 
 		<h2><?php esc_html_e( 'Después de configurar', 'canizales' ); ?></h2>
 		<ol style="max-width:720px">
-			<li><?php esc_html_e( 'Complete correo, dirección y redes en Apariencia → Personalizar → Canizales Consultores.', 'canizales' ); ?></li>
-			<li><?php esc_html_e( 'Suba el logo vectorial en Apariencia → Personalizar → Identidad del sitio.', 'canizales' ); ?></li>
+			<li><?php esc_html_e( 'Indique el correo que recibirá el formulario en Ajustes → Generales.', 'canizales' ); ?></li>
 			<li><?php esc_html_e( 'Revise y publique el borrador de la Política de tratamiento de datos.', 'canizales' ); ?></li>
 			<li><?php esc_html_e( 'Desactive los plugins que ya no se necesitan (Stackable, el botón de WhatsApp anterior).', 'canizales' ); ?></li>
 		</ol>
+
+		<h2><?php esc_html_e( 'Dónde se edita cada cosa', 'canizales' ); ?></h2>
+		<table class="widefat striped" style="max-width:900px">
+			<tbody>
+				<tr><td><strong><?php esc_html_e( 'Colores y tipografías de todo el sitio', 'canizales' ); ?></strong></td><td><?php esc_html_e( 'Apariencia → Editor → Estilos (icono de media luna). Al cambiar un color de la paleta, cambia en toda la web.', 'canizales' ); ?></td></tr>
+				<tr><td><strong><?php esc_html_e( 'Cabecera, menú, pie de página y franja verde final', 'canizales' ); ?></strong></td><td><?php esc_html_e( 'Apariencia → Editor → Patrones → Partes de plantilla. El menú también se edita en Apariencia → Editor → Navegación.', 'canizales' ); ?></td></tr>
+				<tr><td><strong><?php esc_html_e( 'Textos e imágenes de cada página (incluida la portada)', 'canizales' ); ?></strong></td><td><?php esc_html_e( 'Páginas → editar la página. Cada sección es un bloque que se puede mover, duplicar o eliminar.', 'canizales' ); ?></td></tr>
+				<tr><td><strong><?php esc_html_e( 'Añadir una sección con el diseño de la marca', 'canizales' ); ?></strong></td><td><?php esc_html_e( 'En el editor, botón + → Patrones → categoría «Canizales Consultores».', 'canizales' ); ?></td></tr>
+				<tr><td><strong><?php esc_html_e( 'Cambiar el estilo de un bloque', 'canizales' ); ?></strong></td><td><?php esc_html_e( 'Seleccione el bloque → panel derecho → Estilos (sección verde, tarjeta, lista numerada, antetítulo, etc.).', 'canizales' ); ?></td></tr>
+				<tr><td><strong><?php esc_html_e( 'Servicios', 'canizales' ); ?></strong></td><td><?php esc_html_e( 'Menú Servicios. El campo «Orden» (panel derecho) define la posición; el «Extracto» es el resumen que aparece en la portada.', 'canizales' ); ?></td></tr>
+				<tr><td><strong><?php esc_html_e( 'Plantillas (página, entrada, servicio, 404)', 'canizales' ); ?></strong></td><td><?php esc_html_e( 'Apariencia → Editor → Plantillas.', 'canizales' ); ?></td></tr>
+				<tr><td><strong><?php esc_html_e( 'Mensajes del formulario', 'canizales' ); ?></strong></td><td><?php esc_html_e( 'Menú Consultas.', 'canizales' ); ?></td></tr>
+				<tr><td><strong><?php esc_html_e( 'Volver al diseño original', 'canizales' ); ?></strong></td><td><?php esc_html_e( 'En Apariencia → Editor, cada plantilla y parte modificada tiene la opción «Restablecer». Las páginas guardan Revisiones.', 'canizales' ); ?></td></tr>
+			</tbody>
+		</table>
 	</div>
 	<?php
 }

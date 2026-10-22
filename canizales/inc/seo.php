@@ -40,7 +40,7 @@ function canizales_seo_head() {
 	$url   = is_singular() ? get_permalink() : home_url( add_query_arg( array() ) );
 	$image = CANIZALES_URI . '/assets/img/faro-haz.jpg';
 	if ( is_singular() && has_post_thumbnail() ) {
-		$image = get_the_post_thumbnail_url( null, 'canizales-hero' );
+		$image = get_the_post_thumbnail_url( null, 'large' );
 	}
 
 	printf( '<meta name="description" content="%s">' . "\n", esc_attr( $desc ) );
@@ -60,8 +60,6 @@ function canizales_schema() {
 		return;
 	}
 
-	$same_as = array_values( array_filter( array( canizales_opt( 'instagram' ), canizales_opt( 'facebook' ), canizales_opt( 'linkedin' ) ) ) );
-
 	$schema = array(
 		'@context'     => 'https://schema.org',
 		'@type'        => array( 'LegalService', 'ProfessionalService' ),
@@ -70,7 +68,7 @@ function canizales_schema() {
 		'logo'         => CANIZALES_URI . '/assets/img/logo.png',
 		'image'        => CANIZALES_URI . '/assets/img/faro-haz.jpg',
 		'description'  => canizales_meta_description(),
-		'foundingDate' => canizales_opt( 'anio_fundacion' ),
+		'foundingDate' => '1999',
 		'founder'      => array(
 			'@type' => 'Person',
 			'name'  => 'Ángel M. Canizales',
@@ -80,23 +78,8 @@ function canizales_schema() {
 			'name'  => 'Colombia',
 		),
 		'knowsAbout'   => array( 'Insolvencia empresarial', 'Reorganización empresarial', 'Ley 1116 de 2006', 'Liquidación judicial', 'Insolvencia de persona natural', 'Reestructuración financiera' ),
-		'telephone'    => canizales_opt( 'telefono' ),
+		'telephone'    => '+57 311 635 6306',
 	);
-
-	if ( canizales_opt( 'email' ) ) {
-		$schema['email'] = canizales_opt( 'email' );
-	}
-	if ( canizales_opt( 'direccion' ) ) {
-		$schema['address'] = array(
-			'@type'          => 'PostalAddress',
-			'streetAddress'  => canizales_opt( 'direccion' ),
-			'addressLocality' => canizales_opt( 'ciudad' ),
-			'addressCountry' => 'CO',
-		);
-	}
-	if ( $same_as ) {
-		$schema['sameAs'] = $same_as;
-	}
 
 	echo '<script type="application/ld+json">' . wp_json_encode( $schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . "</script>\n";
 }
